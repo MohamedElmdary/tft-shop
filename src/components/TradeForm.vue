@@ -6,18 +6,18 @@
       type="number"
       min="0"
       v-model="form.bitcoins"
-      @input="updateTFTCoins()"
+      @input="updateTFT()"
     >
       <v-img slot="append" src="@/assets/bitcoin.svg" width="20" />
     </v-text-field>
 
     <v-text-field
-      label="TFT Coin"
+      label="TFT"
       color="indigo"
       type="number"
       min="0"
       disabled
-      v-model="form.tftcoins"
+      v-model="form.tft"
     >
       <v-img slot="append" src="@/assets/tft.png" width="20" />
     </v-text-field>
@@ -48,12 +48,12 @@ import { Component, Vue } from "vue-property-decorator";
 export default class TradeForm extends Vue {
   form = {
     bitcoins: 0,
-    tftcoins: 0,
+    tft: 0,
     address: "",
   };
 
-  public updateTFTCoins(): void {
-    this.form.tftcoins = this.form.bitcoins * 1715;
+  public updateTFT(): void {
+    this.form.tft = this.form.bitcoins * 1715;
   }
 }
 </script>

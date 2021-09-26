@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <h1 class="text-center">
-      Trade BitCoins for TFTCoins
+      Trade BitCoins for TFT
     </h1>
 
     <v-divider class="mt-4 mb-4" />
