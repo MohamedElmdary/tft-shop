@@ -11,4 +11,4 @@ What exactly should be done ?
 
 from tft.main import app
 
-app.run(port=3000, reloader=True)
+app.run(port=3000)
