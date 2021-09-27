@@ -5,13 +5,17 @@ from tft.utils.errors import errors
 from threading import Timer
 import requests
 from json import loads
+from jumpscale.loader import j
 
 app_routes = Bottle()
 app_routes.error_handler = errors
 
 
 BITCOIN_WALLET_ADDRESS = "tb1qu0423d0x7uzvx2qt5dh9f75z0em5ls9fu0wqhq"
-# MEMPOOL = []
+TFT_WALLET = j.clients.stellar.get('ayoub')
+
+# load wallet balance
+# TFT_WALLET.get_balance()
 
 
 @app_routes.get("/address")
@@ -47,18 +51,38 @@ def pooling():
 
     txs = loads(res.content)
 
-    # Get stellar txs
-    # And convert them into hashmap for O(1) accessing
+    transactions = {}
+    for transaction in TFT_WALLET.list_transactions():
+        _txid = transaction.memo_text
+        if type(_txid) is str:
+            transactions[_txid] = True
 
     for tx in txs:
-        if not tx.get('status').get('confirmed'):
-            continue
-        txid = str.join('-', [t.get('txid') for t in tx.get('vin')])
-        vout = [
-            v.get('value') for v in tx.get('vout') if v.get('scriptpubkey_address') == BITCOIN_WALLET_ADDRESS
-        ][0] / 1e8
+        txid = tx.get('txid')
 
-        print(txid, vout)
+        if not tx.get('status').get('confirmed') or txid in transactions:
+            print('Sent!')
+            continue
+
+        amount = [
+            v.get('value') for v in tx.get('vout') if v.get('scriptpubkey_address') == BITCOIN_WALLET_ADDRESS
+        ]
+        if len(amount) == 0:
+            continue
+
+        sent_amount = amount[0] / 1e8
+        vin = tx.get("vin")[0]
+        target_address = vin.get("prevout").get("scriptpubkey_address")
+
+        amount = 0.1  # sent_amount * factor
+
+        print('Sending')
+        TFT_WALLET.transfer(
+            destination_address=target_address,
+            amount=amount,
+            asset="XLM",
+            memo_text=txid
+        )
 
     _start_pool()
 

@@ -28,6 +28,7 @@
         color="indigo"
         type="text"
         v-model="form.address"
+        disabled
       >
         <v-icon slot="append" color="red">
           mdi-map-marker
@@ -50,6 +51,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import QRCode from "qrcode";
+import axios from "@/plugins/axios";
 
 @Component({
   name: "TradeForm",
@@ -57,12 +59,23 @@ import QRCode from "qrcode";
 export default class TradeForm extends Vue {
   form = {
     amount: 0,
-    address: "",
+    address: "Loading...",
     message: "",
   };
 
   tft = 0;
   qrcode = "";
+
+  private _fetchData() {
+    axios
+      .get("/address")
+      .then(({ data }) => (this.form.address = data.address))
+      .catch(() => setTimeout(() => this._fetchData(), 5000));
+  }
+
+  created() {
+    this._fetchData();
+  }
 
   public updateTFT(): void {
     this.tft = this.form.amount * 0.5;
@@ -79,7 +92,7 @@ export default class TradeForm extends Vue {
 
   public isDisabled() {
     const { address, amount } = this.form;
-    return address.trim() === "" || amount === 0;
+    return address.trim() === "Loading..." || amount <= 0;
   }
 }
 </script>
